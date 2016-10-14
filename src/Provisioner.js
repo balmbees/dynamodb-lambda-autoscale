@@ -20,10 +20,10 @@ export default class Provisioner extends ProvisionerConfigurableBase {
   async getTableNamesAsync(): Promise<string[]> {
 
     // Option 1 - All tables (Default)
-    return await this.db.listAllTableNamesAsync();
+    // return await this.db.listAllTableNamesAsync();
 
     // Option 2 - Hardcoded list of tables
-    // return ['Table1', 'Table2', 'Table3'];
+    return [ 'vingle_production_weekly_best_cards', 'vingle_production_channel_points' ];
 
     // Option 3 - DynamoDB / S3 configured list of tables
     // return await ...;
