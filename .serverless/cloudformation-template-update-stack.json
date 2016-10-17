@@ -1,0 +1,145 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "ServerlessDeploymentBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/"
+      }
+    },
+    "IamPolicyLambdaExecution": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "prod-dynamodb-auto-scaler-lambda",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Resource": "arn:aws:logs:us-east-1:*:*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:ListTables",
+                "dynamodb:DescribeTable",
+                "dynamodb:UpdateTable",
+                "cloudwatch:GetMetricStatistics",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Resource": "*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "IamRoleLambdaExecution"
+          }
+        ]
+      }
+    },
+    "LambdaLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/dynamodb-auto-scaler/prod/1476694589619-2016-10-17T08:56:29.619Z/dist.zip"
+        },
+        "FunctionName": "dynamodb-auto-scaler-prod-lambda",
+        "Handler": "handler.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs4.3",
+        "Timeout": 10,
+        "Description": "https://github.com/balmbees/dynamodb-lambda-autoscale"
+      }
+    },
+    "LambdaEventsRuleSchedule1": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "rate(1 minute)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "LambdaLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Id": "lambdaSchedule"
+          }
+        ]
+      }
+    },
+    "LambdaLambdaPermissionEventsRuleSchedule1": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "LambdaEventsRuleSchedule1",
+            "Arn"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": {
+        "Ref": "ServerlessDeploymentBucket"
+      }
+    },
+    "LambdaLambdaFunctionArn": {
+      "Description": "Lambda function info",
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaLambdaFunction",
+          "Arn"
+        ]
+      }
+    }
+  }
+}

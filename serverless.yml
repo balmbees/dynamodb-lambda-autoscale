@@ -1,0 +1,30 @@
+service: dynamodb-auto-scaler
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: prod
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:ListTables"
+        - "dynamodb:DescribeTable"
+        - "dynamodb:UpdateTable"
+        - "cloudwatch:GetMetricStatistics"
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+      Resource: "*"
+
+package:
+  artifact: dist.zip
+
+functions:
+  lambda:
+    handler: handler.handler
+    description: "https://github.com/balmbees/dynamodb-lambda-autoscale"
+    memorySize: 128
+    timeout: 10
+    events:
+      - schedule: rate(1 minute)

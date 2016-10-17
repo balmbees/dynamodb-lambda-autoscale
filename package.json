@@ -21,7 +21,9 @@
     "check": "flow check",
     "build": "gulp dist",
     "start": "node ./scripts/start.js",
-    "debug": "node-debug ./scripts/start.js"
+    "debug": "node-debug ./scripts/start.js",
+    "deploy": "npm run build && sls deploy -v",
+    "invoke-lambda": "sls invoke -f lambda -l -v "
   },
   "dependencies": {},
   "devDependencies": {
@@ -47,6 +49,7 @@
     "json-loader": "^0.5.4",
     "measured": "^1.1.0",
     "run-sequence": "^1.1.5",
+    "serverless": "^1.0.2",
     "stats-webpack-plugin": "^0.3.1",
     "warning": "^2.1.0",
     "webpack": "^1.13.0",
