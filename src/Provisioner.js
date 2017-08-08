@@ -20,7 +20,15 @@ export default class Provisioner extends ProvisionerConfigurableBase {
   async getTableNamesAsync(): Promise<string[]> {
 
     // Option 1 - All tables (Default)
-    return await this.db.listAllTableNamesAsync();
+    // return await this.db.listAllTableNamesAsync();
+
+    // Another Option - All tables by default, but ignore specific hard-coded tables
+    const tableNames = await this.db.listAllTableNamesAsync();
+    const ignoredTableNames = {
+      "vingle_production_user_user_relation": true,
+    };
+
+    return tableNames.filter(tableName => !ignoredTableNames[tableName]);
 
     // Option 2 - Hardcoded list of tables
     // return [ 'vingle_production_weekly_best_cards', 'vingle_production_channel_points' ];
