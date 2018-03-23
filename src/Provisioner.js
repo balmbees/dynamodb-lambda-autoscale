@@ -9,6 +9,10 @@ import DefaultProvisioner from './configuration/DefaultProvisioner';
 import { invariant } from './Global';
 import type { TableProvisionedAndConsumedThroughput, ProvisionerConfig, AdjustmentContext } from './flow/FlowTypes';
 
+const IGNORED_TABLE_MAP = new Map([
+  [ 'sitemap_prod_records', true ],
+]);
+
 export default class Provisioner extends ProvisionerConfigurableBase {
 
   // Get the region
@@ -21,7 +25,8 @@ export default class Provisioner extends ProvisionerConfigurableBase {
 
     // Option 1 - All tables (Default)
     // Production tables only
-    return (await this.db.listAllTableNamesAsync()).filter((table) => table.includes("prod"))
+    return (await this.db.listAllTableNamesAsync())
+      .filter(table => table.includes('prod') && !IGNORED_TABLE_MAP.get(table));
 
     // Option 2 - Hardcoded list of tables
     // return [ 'vingle_production_weekly_best_cards', 'vingle_production_channel_points' ];
