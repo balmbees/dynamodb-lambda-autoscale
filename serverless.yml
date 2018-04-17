@@ -25,6 +25,6 @@ functions:
     handler: handler.handler
     description: "https://github.com/balmbees/dynamodb-lambda-autoscale"
     memorySize: 128
-    timeout: 30
+    timeout: 50
     events:
       - schedule: rate(1 minute)
