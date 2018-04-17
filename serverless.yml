@@ -2,7 +2,7 @@ service: dynamodb-auto-scaler
 
 provider:
   name: aws
-  runtime: nodejs4.3
+  runtime: nodejs8.10
   stage: prod
   region: us-east-1
   iamRoleStatements:
@@ -25,6 +25,6 @@ functions:
     handler: handler.handler
     description: "https://github.com/balmbees/dynamodb-lambda-autoscale"
     memorySize: 128
-    timeout: 30
+    timeout: 50
     events:
       - schedule: rate(1 minute)
